@@ -1,0 +1,50 @@
+{
+  "name": "react-snowfall-effect",
+  "version": "0.1.0",
+  "description": "Lightweight canvas snowfall overlay for React with drizzle, medium and storm modes.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "demo": "vite demo",
+    "demo:build": "vite build demo"
+  },
+  "keywords": [
+    "react",
+    "snow",
+    "snowfall",
+    "canvas",
+    "christmas",
+    "winter",
+    "animation"
+  ],
+  "peerDependencies": {
+    "react": ">=17"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}

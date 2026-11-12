@@ -1,0 +1,125 @@
+* { box-sizing: border-box; }
+
+/* The background lives on <html> so it also fills the overscroll area
+   (the "bounce" when scrolling past the top or bottom), instead of white. */
+html {
+  min-height: 100%;
+  background: #0b1526 linear-gradient(180deg, #0b1526 0%, #1b2d4a 60%, #2c4466 100%) fixed;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: #e8eef7;
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 64px 16px;
+}
+
+h1 { margin: 0 0 8px; font-size: 2.2rem; }
+.lead { margin: 0 0 32px; color: #a9b8cf; }
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.mode {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid #3a5275;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+.mode:hover { background: rgba(255, 255, 255, 0.1); }
+.mode.active { border-color: #9cc7ff; background: rgba(156, 199, 255, 0.18); }
+.mode-label { font-weight: 600; }
+.mode-hint { font-size: 0.85rem; color: #a9b8cf; }
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 8px;
+  cursor: pointer;
+}
+
+.card {
+  margin-top: 24px;
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.25);
+}
+.card h2 { margin-top: 0; font-size: 1.1rem; }
+
+pre {
+  margin: 0;
+  padding: 12px;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: #08101d;
+  font-size: 0.9rem;
+}
+
+.text {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #3a5275;
+  border-radius: 8px;
+  background: #0d1a2e;
+  color: inherit;
+  font: inherit;
+}
+
+.tuning { display: grid; gap: 18px; }
+.tuning h2 { margin-bottom: 0; }
+
+.field { display: grid; gap: 6px; }
+.field-head { display: flex; justify-content: space-between; font-weight: 600; }
+.field-head output { font-weight: 400; font-variant-numeric: tabular-nums; color: #9cc7ff; }
+.field-hint { font-size: 0.85rem; color: #a9b8cf; }
+.field input[type='range'] { width: 100%; accent-color: #9cc7ff; }
+
+.color-field input[type='color'] {
+  width: 64px;
+  height: 36px;
+  padding: 2px;
+  border: 1px solid #3a5275;
+  border-radius: 8px;
+  background: #0d1a2e;
+  cursor: pointer;
+}
+
+.flake-count { margin: 0; }
+.capped { color: #ffd38a; }
+
+.reset {
+  justify-self: start;
+  padding: 8px 14px;
+  border: 1px solid #3a5275;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.reset:hover { background: rgba(255, 255, 255, 0.1); }
+
+footer { margin-top: 32px; color: #7f91ad; }
+
+@media (max-width: 560px) {
+  .controls { grid-template-columns: 1fr; }
+}
