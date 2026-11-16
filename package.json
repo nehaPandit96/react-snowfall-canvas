@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Lightweight canvas snowfall overlay for React with drizzle, medium and storm modes.",
   "license": "MIT",
+  "homepage": "https://neha-pandit.com/snowfall-effect/",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
