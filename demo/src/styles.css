@@ -120,6 +120,23 @@ pre {
 
 footer { margin-top: 32px; color: #7f91ad; }
 
+/* Back to the main site. Sits in the page's top padding and scrolls away with it. */
+.back-link {
+  position: absolute;
+  top: 20px;
+  left: 16px;
+  padding: 6px 12px;
+  border: 1px solid #3a5275;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #a9b8cf;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.back-link:hover { background: rgba(255, 255, 255, 0.1); color: #e8eef7; }
+.back-link:focus-visible { outline: 2px solid #9cc7ff; outline-offset: 2px; }
+
 @media (max-width: 560px) {
   .controls { grid-template-columns: 1fr; }
 }

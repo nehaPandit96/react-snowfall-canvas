@@ -63,6 +63,10 @@ export function App() {
         />
       )}
 
+      <a className="back-link" href="https://neha-pandit.com/">
+        ← Check my portfolio
+      </a>
+
       <main className="page">
         <header>
           <h1>react-snowfall-canvas</h1>
