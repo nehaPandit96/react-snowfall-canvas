@@ -11,7 +11,7 @@
     "declaration": true,
     "noEmit": true,
     "paths": {
-      "react-snowfall-effect": ["./src/index.ts"]
+      "react-snowfall-canvas": ["./src/index.ts"]
     }
   },
   "include": ["src", "demo/src"]

@@ -1,4 +1,4 @@
-import { PRESETS, type SnowIntensity, type SnowPreset } from './presets';
+import { PRESETS, type SnowIntensity, type SnowPreset } from "./presets";
 
 export interface SnowEngineOptions {
   intensity?: SnowIntensity;
@@ -30,9 +30,12 @@ interface Flake {
 type Params = {
   density: number;
   maxFlakes: number;
-  r0: number; r1: number;
-  s0: number; s1: number;
-  o0: number; o1: number;
+  r0: number;
+  r1: number;
+  s0: number;
+  s1: number;
+  o0: number;
+  o1: number;
   wind: number;
   gust: number;
   sway: number;
@@ -41,9 +44,12 @@ type Params = {
 const toParams = (p: SnowPreset): Params => ({
   density: p.density,
   maxFlakes: p.maxFlakes,
-  r0: p.radius[0], r1: p.radius[1],
-  s0: p.speed[0], s1: p.speed[1],
-  o0: p.opacity[0], o1: p.opacity[1],
+  r0: p.radius[0],
+  r1: p.radius[1],
+  s0: p.speed[0],
+  s1: p.speed[1],
+  o0: p.opacity[0],
+  o1: p.opacity[1],
   wind: p.wind,
   gust: p.gust,
   sway: p.sway,
@@ -56,7 +62,7 @@ export interface SnowOverrides {
 
 /** Ignore missing or invalid numbers; clamp negatives to 0. */
 const validCount = (n: number | undefined) =>
-  typeof n === 'number' && Number.isFinite(n) ? Math.max(0, n) : undefined;
+  typeof n === "number" && Number.isFinite(n) ? Math.max(0, n) : undefined;
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
@@ -83,13 +89,16 @@ export class SnowEngine {
   private resizeObserver?: ResizeObserver;
   private motionQuery?: MediaQueryList;
 
-  constructor(private canvas: HTMLCanvasElement, options: SnowEngineOptions = {}) {
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('react-snowfall-effect: 2D canvas not supported');
+  constructor(
+    private canvas: HTMLCanvasElement,
+    options: SnowEngineOptions = {},
+  ) {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("react-snowfall-canvas: 2D canvas not supported");
     this.ctx = ctx;
-    this.color = options.color ?? '#ffffff';
+    this.color = options.color ?? "#ffffff";
     this.respectReducedMotion = options.respectReducedMotion ?? true;
-    this.intensity = options.intensity ?? 'medium';
+    this.intensity = options.intensity ?? "medium";
     this.overrides = { density: options.density, maxFlakes: options.maxFlakes };
     this.current = this.buildParams();
     this.target = { ...this.current };
@@ -97,18 +106,18 @@ export class SnowEngine {
     this.resize();
     this.syncFlakeCount(true);
 
-    if (typeof ResizeObserver !== 'undefined') {
+    if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver(this.resize);
       this.resizeObserver.observe(canvas);
     } else {
-      window.addEventListener('resize', this.resize);
+      window.addEventListener("resize", this.resize);
     }
-    document.addEventListener('visibilitychange', this.onVisibility);
+    document.addEventListener("visibilitychange", this.onVisibility);
 
-    if (typeof window.matchMedia === 'function') {
-      this.motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (typeof window.matchMedia === "function") {
+      this.motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
       this.reducedMotion = this.motionQuery.matches;
-      this.motionQuery.addEventListener?.('change', this.onMotionChange);
+      this.motionQuery.addEventListener?.("change", this.onMotionChange);
     }
   }
 
@@ -131,9 +140,9 @@ export class SnowEngine {
   destroy() {
     this.stop();
     this.resizeObserver?.disconnect();
-    window.removeEventListener('resize', this.resize);
-    document.removeEventListener('visibilitychange', this.onVisibility);
-    this.motionQuery?.removeEventListener?.('change', this.onMotionChange);
+    window.removeEventListener("resize", this.resize);
+    document.removeEventListener("visibilitychange", this.onVisibility);
+    this.motionQuery?.removeEventListener?.("change", this.onMotionChange);
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
@@ -215,7 +224,10 @@ export class SnowEngine {
 
   private targetCount() {
     const area = (this.width * this.height) / 1_000_000;
-    return Math.min(this.current.maxFlakes, Math.round(this.current.density * area));
+    return Math.min(
+      this.current.maxFlakes,
+      Math.round(this.current.density * area),
+    );
   }
 
   private makeFlake(instant: boolean): Flake {
@@ -239,9 +251,15 @@ export class SnowEngine {
     for (const f of this.flakes) if (!f.dying) alive++;
     for (const f of this.flakes) {
       if (alive <= want) break;
-      if (!f.dying) { f.dying = true; alive--; }
+      if (!f.dying) {
+        f.dying = true;
+        alive--;
+      }
     }
-    while (alive < want) { this.flakes.push(this.makeFlake(instant)); alive++; }
+    while (alive < want) {
+      this.flakes.push(this.makeFlake(instant));
+      alive++;
+    }
     if (instant) this.flakes = this.flakes.filter((f) => !f.dying);
   }
 
@@ -262,14 +280,20 @@ export class SnowEngine {
     const k = 1 - Math.exp(-dt * 2.5);
     const c = this.current as Record<keyof Params, number>;
     const t = this.target as Record<keyof Params, number>;
-    for (const key in c) c[key as keyof Params] = lerp(c[key as keyof Params], t[key as keyof Params], k);
+    for (const key in c)
+      c[key as keyof Params] = lerp(
+        c[key as keyof Params],
+        t[key as keyof Params],
+        k,
+      );
 
     this.syncFlakeCount(false);
 
     const p = this.current;
     // Gusts: two overlapping slow waves give an uneven, natural-feeling wind.
     const gust =
-      p.gust * (0.6 * Math.sin(this.time * 0.7) + 0.4 * Math.sin(this.time * 1.9 + 1.3));
+      p.gust *
+      (0.6 * Math.sin(this.time * 0.7) + 0.4 * Math.sin(this.time * 1.9 + 1.3));
     const wind = p.wind + gust;
     const margin = 20;
 
@@ -277,7 +301,10 @@ export class SnowEngine {
       const f = this.flakes[i];
       if (f.dying) {
         f.fade -= dt * 1.5;
-        if (f.fade <= 0) { this.flakes.splice(i, 1); continue; }
+        if (f.fade <= 0) {
+          this.flakes.splice(i, 1);
+          continue;
+        }
       } else if (f.fade < 1) {
         f.fade = Math.min(1, f.fade + dt * 1.5);
       }

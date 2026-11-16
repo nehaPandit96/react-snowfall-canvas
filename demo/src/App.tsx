@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { PRESETS, Snowfall, type SnowIntensity } from 'react-snowfall-effect';
+import { useEffect, useState } from "react";
+import { PRESETS, Snowfall, type SnowIntensity } from "react-snowfall-canvas";
 
-const DEFAULT_COLOR = '#ffffff';
+const DEFAULT_COLOR = "#ffffff";
 
 /** Screen area in millions of px², the unit `density` is measured in. */
 function useScreenArea() {
@@ -9,20 +9,20 @@ function useScreenArea() {
   const [area, setArea] = useState(read);
   useEffect(() => {
     const onResize = () => setArea(read());
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
   return area;
 }
 
 const MODES: { value: SnowIntensity; label: string; hint: string }[] = [
-  { value: 'drizzle', label: 'Drizzle', hint: 'Light, slow flakes' },
-  { value: 'medium', label: 'Medium', hint: 'Steady snowfall (default)' },
-  { value: 'storm', label: 'Windy storm', hint: 'Heavy, fast, gusty' },
+  { value: "drizzle", label: "Drizzle", hint: "Light, slow flakes" },
+  { value: "medium", label: "Medium", hint: "Steady snowfall (default)" },
+  { value: "storm", label: "Windy storm", hint: "Heavy, fast, gusty" },
 ];
 
 export function App() {
-  const [intensity, setIntensity] = useState<SnowIntensity>('medium');
+  const [intensity, setIntensity] = useState<SnowIntensity>("medium");
   const [enabled, setEnabled] = useState(true);
   const [density, setDensity] = useState(PRESETS.medium.density);
   const [maxFlakes, setMaxFlakes] = useState(PRESETS.medium.maxFlakes);
@@ -50,17 +50,22 @@ export function App() {
   const snippet =
     extraProps.length === 0
       ? `<Snowfall intensity="${intensity}" />`
-      : `<Snowfall\n  intensity="${intensity}"\n${extraProps.map((p) => `  ${p}`).join('\n')}\n/>`;
+      : `<Snowfall\n  intensity="${intensity}"\n${extraProps.map((p) => `  ${p}`).join("\n")}\n/>`;
 
   return (
     <>
       {enabled && (
-        <Snowfall intensity={intensity} density={density} maxFlakes={maxFlakes} color={color} />
+        <Snowfall
+          intensity={intensity}
+          density={density}
+          maxFlakes={maxFlakes}
+          color={color}
+        />
       )}
 
       <main className="page">
         <header>
-          <h1>react-snowfall-effect</h1>
+          <h1>react-snowfall-canvas</h1>
           <p className="lead">A light snowfall overlay for any React page.</p>
         </header>
 
@@ -68,7 +73,7 @@ export function App() {
           {MODES.map((m) => (
             <button
               key={m.value}
-              className={m.value === intensity ? 'mode active' : 'mode'}
+              className={m.value === intensity ? "mode active" : "mode"}
               onClick={() => chooseMode(m.value)}
               aria-pressed={m.value === intensity}
             >
@@ -79,7 +84,11 @@ export function App() {
         </section>
 
         <label className="toggle">
-          <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />
+          <input
+            type="checkbox"
+            checked={enabled}
+            onChange={(e) => setEnabled(e.target.checked)}
+          />
           Show snow
         </label>
 
@@ -99,7 +108,9 @@ export function App() {
               value={density}
               onChange={(e) => setDensity(Number(e.target.value))}
             />
-            <span className="field-hint">Flakes per 1,000,000 px² of screen</span>
+            <span className="field-hint">
+              Flakes per 1,000,000 px² of screen
+            </span>
           </label>
 
           <label className="field">
@@ -115,7 +126,9 @@ export function App() {
               value={maxFlakes}
               onChange={(e) => setMaxFlakes(Number(e.target.value))}
             />
-            <span className="field-hint">Upper limit, whatever the screen size</span>
+            <span className="field-hint">
+              Upper limit, whatever the screen size
+            </span>
           </label>
 
           <label className="field color-field">
@@ -123,12 +136,21 @@ export function App() {
               <span>Color</span>
               <output>{color}</output>
             </span>
-            <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
+            <input
+              type="color"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+            />
           </label>
 
           <p className="flake-count">
             On this screen: <strong>{flakeCount}</strong> flakes
-            {capped && <span className="capped"> · limited by max flakes (density alone would give {wanted})</span>}
+            {capped && (
+              <span className="capped">
+                {" "}
+                · limited by max flakes (density alone would give {wanted})
+              </span>
+            )}
           </p>
 
           <button
@@ -145,7 +167,7 @@ export function App() {
         <section className="card">
           <h2>Usage</h2>
           <pre>
-            <code>{`import { Snowfall } from 'react-snowfall-effect';
+            <code>{`import { Snowfall } from 'react-snowfall-canvas';
 
 ${snippet}`}</code>
           </pre>
@@ -154,14 +176,14 @@ ${snippet}`}</code>
         <section className="card">
           <h2>The page still works</h2>
           <p>
-            The snow sits on top of the page but ignores the mouse, so you can still click buttons, select
-            text and fill in forms underneath it.
+            The snow sits on top of the page but ignores the mouse, so you can
+            still click buttons, select text and fill in forms underneath it.
           </p>
           <input className="text" placeholder="Try typing here…" />
         </section>
 
         <footer>Scroll down — the snow stays fixed to the screen.</footer>
-        <div style={{ height: '60vh' }} />
+        <div style={{ height: "60vh" }} />
       </main>
     </>
   );

@@ -1,22 +1,22 @@
-# react-snowfall-effect
+# react-snowfall-canvas
 
 A lightweight snowfall overlay for React. It draws on a single `<canvas>`, has no runtime dependencies, and doesn't block clicks on the page underneath.
 
 ## Install
 
 ```bash
-npm install react-snowfall-effect
+npm install react-snowfall-canvas
 ```
 
 ## Usage
 
 ```jsx
-import { Snowfall } from 'react-snowfall-effect';
+import { Snowfall } from "react-snowfall-canvas";
 
 export default function App() {
   return (
     <>
-      <Snowfall />            {/* medium snowfall (default) */}
+      <Snowfall /> {/* medium snowfall (default) */}
       <YourPage />
     </>
   );
@@ -25,11 +25,11 @@ export default function App() {
 
 ### Intensity
 
-| `intensity` | What it looks like |
-|---|---|
-| `"drizzle"` | A few small, slow flakes |
-| `"medium"` *(default)* | Steady snowfall with a gentle drift |
-| `"storm"` | Heavy, fast snow blown sideways by gusty wind |
+| `intensity`            | What it looks like                            |
+| ---------------------- | --------------------------------------------- |
+| `"drizzle"`            | A few small, slow flakes                      |
+| `"medium"` _(default)_ | Steady snowfall with a gentle drift           |
+| `"storm"`              | Heavy, fast snow blown sideways by gusty wind |
 
 ```jsx
 <Snowfall intensity="drizzle" />
@@ -40,17 +40,17 @@ Changing `intensity` while the snow is running blends smoothly into the new mode
 
 ### Props
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `intensity` | `"drizzle" \| "medium" \| "storm"` | `"medium"` | How heavy the snow is |
-| `color` | `string` | `"#ffffff"` | Flake color (any CSS color) |
-| `density` | `number` | preset value | Flakes per 1,000,000 px² of screen. Overrides the `intensity` preset |
-| `maxFlakes` | `number` | preset value | Upper limit on the number of flakes. Overrides the `intensity` preset |
-| `zIndex` | `number` | `9999` | Stacking order of the overlay |
-| `position` | `"fixed" \| "absolute"` | `"fixed"` | `fixed` covers the viewport; `absolute` fills the nearest positioned parent |
-| `respectReducedMotion` | `boolean` | `true` | Shows a still frame for users who turned on "reduce motion" |
-| `className` | `string` | – | Extra class for the canvas |
-| `style` | `CSSProperties` | – | Extra inline styles for the canvas |
+| Prop                   | Type                               | Default      | Description                                                                 |
+| ---------------------- | ---------------------------------- | ------------ | --------------------------------------------------------------------------- |
+| `intensity`            | `"drizzle" \| "medium" \| "storm"` | `"medium"`   | How heavy the snow is                                                       |
+| `color`                | `string`                           | `"#ffffff"`  | Flake color (any CSS color)                                                 |
+| `density`              | `number`                           | preset value | Flakes per 1,000,000 px² of screen. Overrides the `intensity` preset        |
+| `maxFlakes`            | `number`                           | preset value | Upper limit on the number of flakes. Overrides the `intensity` preset       |
+| `zIndex`               | `number`                           | `9999`       | Stacking order of the overlay                                               |
+| `position`             | `"fixed" \| "absolute"`            | `"fixed"`    | `fixed` covers the viewport; `absolute` fills the nearest positioned parent |
+| `respectReducedMotion` | `boolean`                          | `true`       | Shows a still frame for users who turned on "reduce motion"                 |
+| `className`            | `string`                           | –            | Extra class for the canvas                                                  |
+| `style`                | `CSSProperties`                    | –            | Extra inline styles for the canvas                                          |
 
 ### Custom density and color
 
@@ -63,9 +63,8 @@ Changing `intensity` while the snow is running blends smoothly into the new mode
 ### Snow inside one element
 
 ```jsx
-<div style={{ position: 'relative', height: 300 }}>
-  <Snowfall position="absolute" intensity="drizzle" />
-  …
+<div style={{ position: "relative", height: 300 }}>
+  <Snowfall position="absolute" intensity="drizzle" />…
 </div>
 ```
 
@@ -74,9 +73,9 @@ Changing `intensity` while the snow is running blends smoothly into the new mode
 The canvas engine is exported on its own:
 
 ```js
-import { SnowEngine } from 'react-snowfall-effect';
+import { SnowEngine } from "react-snowfall-canvas";
 
-const engine = new SnowEngine(canvasElement, { intensity: 'storm' });
+const engine = new SnowEngine(canvasElement, { intensity: "storm" });
 engine.start();
 // engine.setIntensity('drizzle');
 // engine.setOverrides({ density: 200, maxFlakes: 400 });
