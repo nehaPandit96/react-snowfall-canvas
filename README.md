@@ -2,6 +2,8 @@
 
 A lightweight snowfall overlay for React. It draws on a single `<canvas>`, has no runtime dependencies, and doesn't block clicks on the page underneath.
 
+**[Live demo →](https://neha-pandit.com/snowfall-effect/)**
+
 ## Install
 
 ```bash
