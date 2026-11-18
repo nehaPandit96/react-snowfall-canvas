@@ -60,6 +60,7 @@ export function App() {
           density={density}
           maxFlakes={maxFlakes}
           color={color}
+          showPauseButton
         />
       )}
 
@@ -71,6 +72,11 @@ export function App() {
         <header>
           <h1>react-snowfall-canvas</h1>
           <p className="lead">A light snowfall overlay for any React page.</p>
+          <p className="links">
+            <a href="https://www.npmjs.com/package/react-snowfall-canvas">npm</a>
+            {" · "}
+            <a href="https://github.com/nehaPandit96/react-snowfall-canvas">GitHub</a>
+          </p>
         </header>
 
         <section className="controls" aria-label="Snow intensity">

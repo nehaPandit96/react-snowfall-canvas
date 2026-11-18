@@ -9,6 +9,8 @@ export interface SnowEngineOptions {
   maxFlakes?: number;
   /** Respect the user's "reduce motion" setting by drawing one still frame. Default true. */
   respectReducedMotion?: boolean;
+  /** Start paused (no snow shown). Default false. See `setPaused`. */
+  paused?: boolean;
 }
 
 interface Flake {
@@ -84,7 +86,12 @@ export class SnowEngine {
   private lastTs = 0;
   private raf = 0;
   private running = false;
+  /** Whether a requestAnimationFrame loop is currently scheduled. */
+  private looping = false;
+  /** 0..1 overall visibility, faded down on pause and back up on play. */
+  private master: number;
   private reducedMotion = false;
+  private paused: boolean;
   private respectReducedMotion: boolean;
   private resizeObserver?: ResizeObserver;
   private motionQuery?: MediaQueryList;
@@ -98,6 +105,8 @@ export class SnowEngine {
     this.ctx = ctx;
     this.color = options.color ?? "#ffffff";
     this.respectReducedMotion = options.respectReducedMotion ?? true;
+    this.paused = options.paused ?? false;
+    this.master = this.paused ? 0 : 1;
     this.intensity = options.intensity ?? "medium";
     this.overrides = { density: options.density, maxFlakes: options.maxFlakes };
     this.current = this.buildParams();
@@ -124,17 +133,12 @@ export class SnowEngine {
   start() {
     if (this.running) return;
     this.running = true;
-    if (this.isStill()) {
-      this.draw();
-      return;
-    }
-    this.lastTs = 0;
-    this.raf = requestAnimationFrame(this.tick);
+    this.refreshLoop();
   }
 
   stop() {
     this.running = false;
-    cancelAnimationFrame(this.raf);
+    this.haltLoop();
   }
 
   destroy() {
@@ -172,7 +176,7 @@ export class SnowEngine {
 
   private retarget() {
     this.target = this.buildParams();
-    if (this.isStill()) {
+    if (this.isIdle()) {
       this.current = { ...this.target };
       this.syncFlakeCount(true);
       this.draw();
@@ -181,11 +185,51 @@ export class SnowEngine {
 
   setColor(color: string) {
     this.color = color;
-    if (this.isStill()) this.draw();
+    if (this.isIdle()) this.draw();
   }
 
+  /**
+   * Pause: the snow keeps falling while it fades out over about a second,
+   * then the animation stops completely. Play: the snow fades back in.
+   * Gives users a way to stop the motion (WCAG 2.2.2 Pause, Stop, Hide).
+   */
+  setPaused(paused: boolean) {
+    if (this.paused === paused) return;
+    this.paused = paused;
+    this.refreshLoop();
+  }
+
+  /** Reduced motion: draw single still frames instead of animating. */
   private isStill() {
     return this.respectReducedMotion && this.reducedMotion;
+  }
+
+  /** True when nothing needs animating: reduced motion, or fully faded out on pause. */
+  private isIdle() {
+    return this.isStill() || (this.paused && this.master <= 0);
+  }
+
+  private haltLoop() {
+    cancelAnimationFrame(this.raf);
+    this.looping = false;
+  }
+
+  /** Start or stop the animation loop to match the current state. */
+  private refreshLoop() {
+    if (!this.running) return;
+    if (this.isStill()) {
+      // No fade under reduced motion: show or hide the still frame at once.
+      this.haltLoop();
+      this.master = this.paused ? 0 : 1;
+      this.draw();
+    } else if (this.isIdle()) {
+      this.haltLoop();
+      this.draw();
+    } else if (!this.looping && !document.hidden) {
+      this.looping = true;
+      this.lastTs = 0;
+      this.raf = requestAnimationFrame(this.tick);
+    }
   }
 
   private resize = () => {
@@ -197,29 +241,17 @@ export class SnowEngine {
     this.canvas.height = Math.round(rect.height * dpr);
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     this.syncFlakeCount(true);
-    if (this.running && this.isStill()) this.draw();
+    if (this.running && this.isIdle()) this.draw();
   };
 
   private onVisibility = () => {
-    if (!this.running || this.isStill()) return;
-    if (document.hidden) {
-      cancelAnimationFrame(this.raf);
-    } else {
-      this.lastTs = 0;
-      this.raf = requestAnimationFrame(this.tick);
-    }
+    if (document.hidden) this.haltLoop();
+    else this.refreshLoop();
   };
 
   private onMotionChange = (e: MediaQueryListEvent) => {
     this.reducedMotion = e.matches;
-    if (!this.running) return;
-    cancelAnimationFrame(this.raf);
-    if (this.isStill()) {
-      this.draw();
-    } else {
-      this.lastTs = 0;
-      this.raf = requestAnimationFrame(this.tick);
-    }
+    this.refreshLoop();
   };
 
   private targetCount() {
@@ -268,8 +300,19 @@ export class SnowEngine {
     // Clamp dt so a stalled tab doesn't make flakes jump.
     const dt = this.lastTs ? Math.min((ts - this.lastTs) / 1000, 0.05) : 0.016;
     this.lastTs = ts;
+
+    // Fade the whole snowfall out on pause and back in on play (~1.2 s).
+    const step = dt / 1.2;
+    this.master = this.paused
+      ? Math.max(0, this.master - step)
+      : Math.min(1, this.master + step);
+
     this.update(dt);
     this.draw();
+    if (this.isIdle()) {
+      this.looping = false; // faded out fully: stop until play
+      return;
+    }
     this.raf = requestAnimationFrame(this.tick);
   };
 
@@ -330,10 +373,11 @@ export class SnowEngine {
     const { ctx } = this;
     const p = this.current;
     ctx.clearRect(0, 0, this.width, this.height);
+    if (this.master <= 0) return;
     ctx.fillStyle = this.color;
     for (const f of this.flakes) {
       const r = lerp(p.r0, p.r1, f.rf);
-      ctx.globalAlpha = lerp(p.o0, p.o1, f.of) * f.fade;
+      ctx.globalAlpha = lerp(p.o0, p.o1, f.of) * f.fade * this.master;
       ctx.beginPath();
       ctx.arc(f.x, f.y, r, 0, Math.PI * 2);
       ctx.fill();

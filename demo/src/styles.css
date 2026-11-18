@@ -23,6 +23,9 @@ body {
 
 h1 { margin: 0 0 8px; font-size: 2.2rem; }
 .lead { margin: 0 0 32px; color: #a9b8cf; }
+header .lead { margin-bottom: 8px; }
+.links { margin: 0 0 32px; }
+a { color: #9cc7ff; }
 
 .controls {
   display: grid;

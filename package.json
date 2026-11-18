@@ -1,9 +1,16 @@
 {
   "name": "react-snowfall-canvas",
   "version": "0.1.1",
-  "description": "Lightweight canvas snowfall overlay for React with drizzle, medium and storm modes.",
+  "description": "Accessible, lightweight snowfall overlay for React. Respects reduced motion, has a pause/play control (WCAG 2.2.2), and never blocks clicks. No dependencies.",
   "license": "MIT",
   "homepage": "https://neha-pandit.com/snowfall-effect/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nehaPandit96/react-snowfall-canvas.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nehaPandit96/react-snowfall-canvas/issues"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -27,13 +34,17 @@
     "demo:build": "vite build demo"
   },
   "keywords": [
-    "react",
     "snow",
     "snowfall",
-    "canvas",
     "christmas",
+    "holiday",
     "winter",
-    "animation"
+    "canvas",
+    "react",
+    "accessible",
+    "a11y",
+    "reduced-motion",
+    "wcag"
   ],
   "peerDependencies": {
     "react": ">=17"

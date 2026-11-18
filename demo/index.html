@@ -3,10 +3,65 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>react-snowfall-canvas demo</title>
+    <title>react-snowfall-canvas: accessible snowfall effect for React</title>
+    <meta
+      name="description"
+      content="A lightweight, accessible snowfall overlay for React. Respects reduced motion, includes a pause/play control (WCAG 2.2.2), never blocks clicks, and has no dependencies."
+    />
+    <link rel="canonical" href="https://neha-pandit.com/snowfall-effect/" />
+    <meta name="theme-color" content="#0b1526" />
+
+    <!-- Open Graph (Facebook, LinkedIn, Slack, iMessage…) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Neha Pandit" />
+    <meta property="og:title" content="react-snowfall-canvas: accessible snowfall for React" />
+    <meta
+      property="og:description"
+      content="The snowfall effect that won't fail your accessibility audit. Reduced motion, pause/play (WCAG 2.2.2), no dependencies."
+    />
+    <meta property="og:url" content="https://neha-pandit.com/snowfall-effect/" />
+    <meta property="og:image" content="https://neha-pandit.com/snowfall-effect/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Snow falling over a dark blue background with the title react-snowfall-canvas"
+    />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="react-snowfall-canvas: accessible snowfall for React" />
+    <meta
+      name="twitter:description"
+      content="The snowfall effect that won't fail your accessibility audit. Reduced motion, pause/play (WCAG 2.2.2), no dependencies."
+    />
+    <meta name="twitter:image" content="https://neha-pandit.com/snowfall-effect/og.png" />
+    <meta
+      name="twitter:image:alt"
+      content="Snow falling over a dark blue background with the title react-snowfall-canvas"
+    />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static content for crawlers and no-JS visitors. React replaces it on load. -->
+      <main class="page">
+        <h1>react-snowfall-canvas</h1>
+        <p class="lead">
+          The snowfall effect that won't fail your accessibility audit. A lightweight
+          snowfall overlay for React that respects reduced motion, includes a
+          pause/play control (WCAG 2.2.2), never blocks clicks, and has no dependencies.
+        </p>
+        <section class="card">
+          <h2>Install</h2>
+          <pre><code>npm install react-snowfall-canvas</code></pre>
+        </section>
+        <p>
+          <a href="https://www.npmjs.com/package/react-snowfall-canvas">npm</a> ·
+          <a href="https://github.com/nehaPandit96/react-snowfall-canvas">GitHub</a> ·
+          <a href="https://neha-pandit.com/">Neha Pandit's portfolio</a>
+        </p>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
