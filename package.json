@@ -1,6 +1,6 @@
 {
   "name": "react-snowfall-canvas",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Accessible, lightweight snowfall overlay for React. Respects reduced motion, has a pause/play control (WCAG 2.2.2), and never blocks clicks. No dependencies.",
   "license": "MIT",
   "homepage": "https://neha-pandit.com/snowfall-effect/",
