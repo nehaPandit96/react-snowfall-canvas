@@ -106,6 +106,30 @@ pre {
   cursor: pointer;
 }
 
+.shapes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.shape {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #3a5275;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.shape:hover { background: rgba(255, 255, 255, 0.1); }
+.shape.active { border-color: #9cc7ff; background: rgba(156, 199, 255, 0.18); }
+.shape-icon { flex: none; color: #9cc7ff; opacity: 0.85; }
+.shape.active .shape-icon { opacity: 1; }
+
 .flake-count { margin: 0; }
 .capped { color: #ffd38a; }
 
@@ -142,4 +166,5 @@ footer { margin-top: 32px; color: #7f91ad; }
 
 @media (max-width: 560px) {
   .controls { grid-template-columns: 1fr; }
+  .shape { flex-direction: column; gap: 2px; padding: 8px 6px; }
 }

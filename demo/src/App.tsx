@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { PRESETS, Snowfall, type SnowIntensity } from "react-snowfall-canvas";
+import {
+  PRESETS,
+  Snowfall,
+  type SnowIntensity,
+  type SnowShape,
+} from "react-snowfall-canvas";
 
 const DEFAULT_COLOR = "#ffffff";
 
@@ -21,12 +26,72 @@ const MODES: { value: SnowIntensity; label: string; hint: string }[] = [
   { value: "storm", label: "Windy storm", hint: "Heavy, fast, gusty" },
 ];
 
+/** "snowflake" icon from Lucide (https://lucide.dev, ISC license), on a 24×24 grid. */
+function LucideSnowflake() {
+  return (
+    <>
+      <path d="m10 20-1.25-2.5L6 18" />
+      <path d="M10 4 8.75 6.5 6 6" />
+      <path d="m14 20 1.25-2.5L18 18" />
+      <path d="m14 4 1.25 2.5L18 6" />
+      <path d="m17 21-3-6h-4" />
+      <path d="m17 3-3 6 1.5 3" />
+      <path d="M2 12h6.5L10 9" />
+      <path d="m20 10-1.5 2 1.5 2" />
+      <path d="M22 12h-6.5L14 15" />
+      <path d="m4 10 1.5 2L4 14" />
+      <path d="m7 21 3-6-1.5-3" />
+      <path d="m7 3 3 6h4" />
+    </>
+  );
+}
+
+const ICON_SIZE = 18;
+
+function ShapeIcon({ shape }: { shape: SnowShape }) {
+  const mixed = shape === "mixed";
+  return (
+    <svg
+      className="shape-icon"
+      viewBox={mixed ? "0 0 34 24" : "0 0 24 24"}
+      width={mixed ? (ICON_SIZE * 34) / 24 : ICON_SIZE}
+      height={ICON_SIZE}
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {shape === "circle" && (
+        <circle cx={12} cy={12} r={3.5} fill="currentColor" stroke="none" />
+      )}
+      {shape === "snowflake" && <LucideSnowflake />}
+      {mixed && (
+        <>
+          <circle cx={3.5} cy={15} r={2.5} fill="currentColor" stroke="none" />
+          <g transform="translate(10 0)">
+            <LucideSnowflake />
+          </g>
+        </>
+      )}
+    </svg>
+  );
+}
+
+const SHAPES: { value: SnowShape; label: string }[] = [
+  { value: "circle", label: "Circles" },
+  { value: "snowflake", label: "Snowflakes" },
+  { value: "mixed", label: "Mixed" },
+];
+
 export function App() {
   const [intensity, setIntensity] = useState<SnowIntensity>("medium");
   const [enabled, setEnabled] = useState(true);
   const [density, setDensity] = useState(PRESETS.medium.density);
   const [maxFlakes, setMaxFlakes] = useState(PRESETS.medium.maxFlakes);
   const [color, setColor] = useState(DEFAULT_COLOR);
+  const [shape, setShape] = useState<SnowShape>("circle");
   const area = useScreenArea();
 
   // Picking a mode loads that mode's density and cap into the sliders.
@@ -45,6 +110,7 @@ export function App() {
   const extraProps = [
     density !== preset.density && `density={${density}}`,
     maxFlakes !== preset.maxFlakes && `maxFlakes={${maxFlakes}}`,
+    shape !== "circle" && `shape="${shape}"`,
     color !== DEFAULT_COLOR && `color="${color}"`,
   ].filter(Boolean);
   const snippet =
@@ -60,6 +126,7 @@ export function App() {
           density={density}
           maxFlakes={maxFlakes}
           color={color}
+          shape={shape}
           showPauseButton
         />
       )}
@@ -104,6 +171,30 @@ export function App() {
 
         <section className="card tuning" aria-label="Fine-tune the snow">
           <h2>Fine-tune</h2>
+
+          <div className="field">
+            <span className="field-head" id="shape-label">
+              <span>Flake shape</span>
+            </span>
+            <div className="shapes" role="group" aria-labelledby="shape-label">
+              {SHAPES.map((s) => (
+                <button
+                  key={s.value}
+                  type="button"
+                  className={s.value === shape ? "shape active" : "shape"}
+                  onClick={() => setShape(s.value)}
+                  aria-pressed={s.value === shape}
+                >
+                  <ShapeIcon shape={s.value} />
+                  {s.label}
+                </button>
+              ))}
+            </div>
+            <span className="field-hint">
+              Snowflakes are drawn larger so their arms show; lower the density
+              if the screen gets busy
+            </span>
+          </div>
 
           <label className="field">
             <span className="field-head">

@@ -1,4 +1,11 @@
 import { PRESETS, type SnowIntensity, type SnowPreset } from "./presets";
+import {
+  CRYSTAL_VARIANTS,
+  SMALL_SPRITE_MAX,
+  buildCrystalSprites,
+  type CrystalSprites,
+  type SnowShape,
+} from "./shapes";
 
 export interface SnowEngineOptions {
   intensity?: SnowIntensity;
@@ -11,6 +18,8 @@ export interface SnowEngineOptions {
   respectReducedMotion?: boolean;
   /** Start paused (no snow shown). Default false. See `setPaused`. */
   paused?: boolean;
+  /** "circle" (default) dots, "snowflake" crystals, or "mixed" (bigger flakes are crystals). */
+  shape?: SnowShape;
 }
 
 interface Flake {
@@ -26,6 +35,10 @@ interface Flake {
   /** 0..1 visibility, used to fade flakes in and out when the count changes. */
   fade: number;
   dying: boolean;
+  /** Crystal rotation in radians, its spin in radians per second, and which design it uses. */
+  angle: number;
+  spin: number;
+  variant: number;
 }
 
 /** Numbers we smoothly blend between when the intensity changes. */
@@ -68,6 +81,12 @@ const validCount = (n: number | undefined) =>
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
+/** Crystals need to be bigger than dots for their arms to be visible. */
+const crystalRadius = (r: number) => r * 2.5 + 1.5;
+
+/** In "mixed" mode, flakes with a size factor above this are crystals (about 30% of them). */
+const MIXED_CRYSTAL_FROM = 0.5;
+
 /**
  * Framework-free snowfall renderer. Draws onto the given canvas and sizes
  * itself to the canvas's CSS box.
@@ -78,6 +97,10 @@ export class SnowEngine {
   private current: Params;
   private target: Params;
   private color: string;
+  private shape: SnowShape;
+  /** Cached crystal images; rebuilt lazily after the color changes. */
+  private sprites: CrystalSprites | null = null;
+  private dpr = 1;
   private intensity: SnowIntensity;
   private overrides: SnowOverrides = {};
   private width = 0;
@@ -104,6 +127,7 @@ export class SnowEngine {
     if (!ctx) throw new Error("react-snowfall-canvas: 2D canvas not supported");
     this.ctx = ctx;
     this.color = options.color ?? "#ffffff";
+    this.shape = options.shape ?? "circle";
     this.respectReducedMotion = options.respectReducedMotion ?? true;
     this.paused = options.paused ?? false;
     this.master = this.paused ? 0 : 1;
@@ -184,8 +208,23 @@ export class SnowEngine {
   }
 
   setColor(color: string) {
+    if (color === this.color) return;
     this.color = color;
+    this.sprites = null;
     if (this.isIdle()) this.draw();
+  }
+
+  /** Switch between "circle", "snowflake" and "mixed" flakes. */
+  setShape(shape: SnowShape) {
+    this.shape = shape;
+    if (this.isIdle()) this.draw();
+  }
+
+  private isCrystal(f: Flake) {
+    return (
+      this.shape === "snowflake" ||
+      (this.shape === "mixed" && f.rf > MIXED_CRYSTAL_FROM)
+    );
   }
 
   /**
@@ -235,6 +274,7 @@ export class SnowEngine {
   private resize = () => {
     const rect = this.canvas.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.dpr = dpr;
     this.width = rect.width;
     this.height = rect.height;
     this.canvas.width = Math.round(rect.width * dpr);
@@ -273,6 +313,9 @@ export class SnowEngine {
       freq: 0.5 + Math.random(),
       fade: instant ? 1 : 0,
       dying: false,
+      angle: Math.random() * Math.PI * 2,
+      spin: (Math.random() - 0.5) * 1.2,
+      variant: Math.floor(Math.random() * CRYSTAL_VARIANTS),
     };
   }
 
@@ -351,7 +394,9 @@ export class SnowEngine {
       } else if (f.fade < 1) {
         f.fade = Math.min(1, f.fade + dt * 1.5);
       }
-      const r = lerp(p.r0, p.r1, f.rf);
+      const dot = lerp(p.r0, p.r1, f.rf);
+      const r = this.isCrystal(f) ? crystalRadius(dot) : dot;
+      f.angle += f.spin * dt;
       // Bigger flakes fall a little faster.
       const speed = lerp(p.s0, p.s1, f.sf) * (0.7 + 0.3 * f.rf);
       f.y += speed * dt;
@@ -374,13 +419,41 @@ export class SnowEngine {
     const p = this.current;
     ctx.clearRect(0, 0, this.width, this.height);
     if (this.master <= 0) return;
+
+    // Pass 1: round dots.
+    let crystals = 0;
     ctx.fillStyle = this.color;
     for (const f of this.flakes) {
+      if (this.isCrystal(f)) {
+        crystals++;
+        continue;
+      }
       const r = lerp(p.r0, p.r1, f.rf);
       ctx.globalAlpha = lerp(p.o0, p.o1, f.of) * f.fade * this.master;
       ctx.beginPath();
       ctx.arc(f.x, f.y, r, 0, Math.PI * 2);
       ctx.fill();
+    }
+
+    // Pass 2: crystals, copied from cached images with a per-flake rotation.
+    if (crystals > 0) {
+      const sprites = (this.sprites ??= buildCrystalSprites(this.color));
+      const dpr = this.dpr;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      for (const f of this.flakes) {
+        if (!this.isCrystal(f)) continue;
+        const r = crystalRadius(lerp(p.r0, p.r1, f.rf));
+        const set = r * dpr <= SMALL_SPRITE_MAX ? sprites.small : sprites.large;
+        const sprite = set[f.variant];
+        const scale = (r / sprite.radius) * dpr;
+        const cos = Math.cos(f.angle) * scale;
+        const sin = Math.sin(f.angle) * scale;
+        ctx.globalAlpha = lerp(p.o0, p.o1, f.of) * f.fade * this.master;
+        ctx.setTransform(cos, sin, -sin, cos, f.x * dpr, f.y * dpr);
+        ctx.drawImage(sprite.canvas, -sprite.half, -sprite.half);
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
     ctx.globalAlpha = 1;
   }

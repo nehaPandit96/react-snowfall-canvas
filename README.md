@@ -9,7 +9,7 @@
 ## Why this one?
 
 - **Accessible by default.** It respects `prefers-reduced-motion`, has a pause/play control for WCAG 2.2.2, is hidden from screen readers, and never blocks clicks.
-- **Tiny.** About 4 KB gzipped, with no runtime dependencies.
+- **Tiny.** About 5 KB gzipped, with no runtime dependencies.
 - **One `<canvas>`**, not hundreds of DOM nodes, so the page stays fast.
 - **Smooth.** Changing intensity blends gradually, and pause/play fades instead of cutting out.
 - **Easy on battery.** It stops animating when the tab is hidden or the snow is paused, and caps canvas resolution at 2× on high-DPI screens.
@@ -37,6 +37,7 @@ Put it anywhere in your app. It covers the screen without blocking anything unde
 | ---------------------- | ---------------------------------- | ------------ | --------------------------------------------------------------------------- |
 | `intensity`            | `"drizzle" \| "medium" \| "storm"` | `"medium"`   | How heavy the snow is                                                       |
 | `color`                | `string`                           | `"#ffffff"`  | Flake color (any CSS color)                                                 |
+| `shape`                | `"circle" \| "snowflake" \| "mixed"` | `"circle"`   | Round dots, six-armed crystals that slowly spin, or a mix of both           |
 | `density`              | `number`                           | preset value | Flakes per 1,000,000 px² of screen. Overrides the `intensity` preset        |
 | `maxFlakes`            | `number`                           | preset value | Upper limit on the number of flakes. Overrides the `intensity` preset       |
 | `zIndex`               | `number`                           | `9999`       | Stacking order of the overlay                                               |
@@ -107,6 +108,22 @@ The built-in button is hidden while the snow is already still because of reduced
 
 Changing `intensity` while the snow is running blends smoothly into the new mode.
 
+### Flake shape
+
+| `shape`               | What it looks like                                              |
+| --------------------- | --------------------------------------------------------------- |
+| `"circle"` _(default)_ | Soft round dots                                                |
+| `"snowflake"`         | Six-armed ice crystals in three designs, each slowly spinning   |
+| `"mixed"`             | Mostly dots, with the bigger flakes (about 30%) as crystals     |
+
+```jsx
+<Snowfall shape="snowflake" intensity="drizzle" />
+```
+
+Crystals are drawn larger than dots so their arms are visible, so they fill more of the screen. On text-heavy pages, pair `"snowflake"` with `drizzle` or a lower `density`.
+
+Crystals are as fast as dots: each design is drawn once into a small cached image, and every frame just copies that image with a rotation. Changing `shape` takes effect immediately, without restarting the snow.
+
 ### Custom density and color
 
 `density` and `maxFlakes` override the values from the chosen `intensity`, while keeping its speed, wind and flake size. The flake count is `density × screen area (in millions of px²)`, capped at `maxFlakes`. If you raise `density` and see no change, raise `maxFlakes` too.
@@ -135,6 +152,7 @@ engine.start();
 // engine.setIntensity('drizzle');
 // engine.setOverrides({ density: 200, maxFlakes: 400 });
 // engine.setColor('#cfe8ff');
+// engine.setShape('snowflake');
 // engine.setPaused(true);   // fade out, then stop animating
 // engine.setPaused(false);  // fade back in
 // engine.destroy();

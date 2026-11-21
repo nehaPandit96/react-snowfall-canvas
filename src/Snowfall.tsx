@@ -1,12 +1,18 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { SnowEngine } from './engine';
 import type { SnowIntensity } from './presets';
+import type { SnowShape } from './shapes';
 
 export interface SnowfallProps {
   /** How heavy the snow is. Default: "medium". */
   intensity?: SnowIntensity;
   /** Flake color (any CSS color). Default: "#ffffff". */
   color?: string;
+  /**
+   * "circle" (default) draws round dots, "snowflake" draws six-armed crystals
+   * that slowly spin, and "mixed" makes the bigger flakes crystals.
+   */
+  shape?: SnowShape;
   /**
    * Flakes per 1,000,000 px² of screen. Overrides the intensity preset's value.
    * Leave unset to use the preset.
@@ -65,6 +71,7 @@ function usePrefersReducedMotion() {
 export function Snowfall({
   intensity = 'medium',
   color = '#ffffff',
+  shape = 'circle',
   density,
   maxFlakes,
   zIndex = 9999,
@@ -97,6 +104,7 @@ export function Snowfall({
     const engine = new SnowEngine(canvas, {
       intensity,
       color,
+      shape,
       density,
       maxFlakes,
       respectReducedMotion,
@@ -108,7 +116,7 @@ export function Snowfall({
       engine.destroy();
       engineRef.current = null;
     };
-    // intensity/color/density/maxFlakes are applied by the effects below without restarting.
+    // intensity/color/shape/density/maxFlakes are applied by the effects below without restarting.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [respectReducedMotion]);
 
@@ -123,6 +131,10 @@ export function Snowfall({
   useEffect(() => {
     engineRef.current?.setColor(color);
   }, [color]);
+
+  useEffect(() => {
+    engineRef.current?.setShape(shape);
+  }, [shape]);
 
   useEffect(() => {
     engineRef.current?.setPaused(paused);
